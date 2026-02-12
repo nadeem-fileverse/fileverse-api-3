@@ -1,0 +1,21 @@
+{
+  "name": "fileverse-api-3",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "One-click Cloudflare deploy template for Fileverse API",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@fileverse/api": "^0.0.3"
+  },
+  "devDependencies": {
+    "@cloudflare/containers": "^0.1.0",
+    "@cloudflare/workers-types": "^4.20260101.0",
+    "wrangler": "^4.25.0",
+    "typescript": "^5.5.0"
+  }
+}

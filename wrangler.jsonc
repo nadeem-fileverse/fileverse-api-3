@@ -1,0 +1,29 @@
+{
+  "name": "fileverse-api-3",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-02-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "containers": [
+    {
+      "class_name": "FileverseContainer",
+      "image": "./Dockerfile",
+      "instance_type": "standard-1",
+      "max_instances": 1
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "FileverseContainer",
+        "name": "FILEVERSE"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "new_sqlite_classes": ["FileverseContainer"],
+      "tag": "v1"
+    }
+  ],
+  "observability": { "enabled": true }
+}
