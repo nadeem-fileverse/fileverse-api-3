@@ -1,0 +1,47 @@
+name: Build and Deploy to IPFS
+on:
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        required: true
+        type: string
+      branch:
+        required: true
+        type: string
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit_sha }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install Pandoc
+        run: sudo apt-get update && sudo apt-get install -y pandoc
+
+      - name: Build site
+        run: python publish.py posts/*.md
+
+      - name: Create tarball
+        run: tar -czf site.tar.gz -C site .
+
+      - name: Compute HMAC signature
+        id: hmac
+        run: |
+          SIGNATURE=$(openssl dgst -sha256 -hmac "${{ secrets.IPFS_DEPLOY_UPLOAD_SECRET }}" -hex site.tar.gz | awk '{print $2}')
+          echo "signature=${SIGNATURE}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload to server
+        run: |
+          curl -f -X POST \
+            -H "X-Hub-Signature-256: sha256=${{ steps.hmac.outputs.signature }}" \
+            -H "X-GitHub-Repo: ${{ github.repository }}" \
+            -H "X-GitHub-SHA: ${{ inputs.commit_sha }}" \
+            -H "X-GitHub-Branch: ${{ inputs.branch }}" \
+            -F "tarball=@site.tar.gz" \
+            https://colleagues-higher-gain-falling.trycloudflare.com/api/upload
